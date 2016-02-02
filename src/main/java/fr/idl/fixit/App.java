@@ -154,16 +154,23 @@ public class App
 		
 		long start = System.currentTimeMillis();
 		String folder = "";
+		boolean useBlack = false;
 		if(args.length == 0){
-			System.out.println("vous devez préciser le chemin vers le dossier src de votre projet");
+			System.out.println("Argument obligatoire: vous devez préciser le chemin vers le dossier src de votre projet");
+			System.out.println("Argument optionnel: vous pouvez faire suivre le chemin vers le dossier de <black> pour utiliser les blackBoxs durant la phase de reparation");
 			return;
 		}else{
 			folder = args[0];
+			
+			if(args.length > 1){
+				if(args[1].equals("black")){
+					useBlack = true;
+				}
+			}
 		}
 
 		TestLauncher testLauncher = new TestLauncher();
 		listProcessors.add(new BinaryOperatorProcessor());
-		addDateToFile();
 				
 			BinaryOperatorProcessor.raz();
 			
@@ -185,7 +192,7 @@ public class App
 					deleteClassFiles(repertoireClasseName);
 					launchSpoon(folder, binaryOperatorProcessor);
 					
-					int nbrFailAfterSpoon = testLauncher.runTests(whiteTestCurrent,repertoireClasseName);
+					int nbrFailAfterSpoon = testLauncher.runTests(useBlack ? blackTestCurrent : whiteTestCurrent,repertoireClasseName);
 					if(nbrFailAfterSpoon < lowestFail){
 						System.out.println("correction detectee !" +nbrFailAfterSpoon+ " < "+lowestFail);
 						lowestFail = nbrFailAfterSpoon;
@@ -198,6 +205,7 @@ public class App
 			int nbrfailBlackFinal = testLauncher.runTests(blackTestCurrent, repertoireClasseName);
 			
 			if((nbrFailWhiteInit != 0 && nbrfailWhiteFinal == 0) ||  nbrFailBlackInit != 0 &&  nbrfailBlackFinal == 0){
+				addDateToFile();
 				addResultToFile(folder,nbrFailWhiteInit,nbrFailBlackInit,nbrfailWhiteFinal,nbrfailBlackFinal);
 			}
 
